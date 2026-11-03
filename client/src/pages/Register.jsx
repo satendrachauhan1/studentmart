@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiUrl } from "../utils/api.js";
+import { apiUrl, isApiConfigured } from "../utils/api.js";
 
 function Register({ onRegisterSuccess, onLoginClick }) {
     const [formData, setFormData] = useState({
@@ -44,6 +44,11 @@ function Register({ onRegisterSuccess, onLoginClick }) {
             return;
         }
 
+        if (!isApiConfigured()) {
+            setError("Online registration is not connected yet. Deploy the StudentMart API and set the VITE_API_URL repository variable.");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -63,6 +68,9 @@ function Register({ onRegisterSuccess, onLoginClick }) {
                 }
             );
 
+            if (!(response.headers.get("content-type") || "").includes("application/json")) {
+                throw new Error("The API address returned a web page instead of JSON. Check the VITE_API_URL setting.");
+            }
             const data = await response.json();
 
             if (!response.ok) {
@@ -86,7 +94,7 @@ function Register({ onRegisterSuccess, onLoginClick }) {
 
         } catch (error) {
             console.error("Registration Error:", error);
-            setError("Unable to connect to server.");
+            setError(error.message === "Failed to fetch" ? "Unable to connect to the StudentMart API. Confirm the backend is deployed and its URL is configured." : error.message || "Unable to connect to server.");
         } finally {
             setLoading(false);
         }
