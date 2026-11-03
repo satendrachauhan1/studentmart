@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { handleProductImageError, productImageFallback } from "../utils/productImage.js";
+import { handleProductImageError, resolveProductImage } from "../utils/productImage.js";
+import { apiUrl } from "../utils/api.js";
 
 function Products({ onBack, onProductClick }) {
 
@@ -25,7 +26,7 @@ function Products({ onBack, onProductClick }) {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        fetch(`${import.meta.env.VITE_API_URL || ""}/api/saved-products`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(apiUrl("saved-products"), { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => response.ok ? response.json() : { products: [] })
             .then((data) => setSavedIds((data.products || []).map((product) => product._id)))
             .catch(() => setSavedIds([]));
@@ -46,7 +47,7 @@ function Products({ onBack, onProductClick }) {
             if (sort) params.set("sort", sort);
             if (acquisition !== "all") params.set("acquisition", acquisition);
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL || ""}/api/products?${params}`
+                `${apiUrl("products")}?${params}`
             );
 
 
@@ -135,7 +136,7 @@ function Products({ onBack, onProductClick }) {
         const token = localStorage.getItem("token");
         const saved = savedIds.includes(product._id);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/saved-products/${product._id}`, {
+            const response = await fetch(apiUrl(`saved-products/${product._id}`), {
                 method: saved ? "DELETE" : "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -149,7 +150,7 @@ function Products({ onBack, onProductClick }) {
     const removeListing = async (product) => {
         if (!window.confirm(`Remove “${product.title}” from the marketplace?`)) return;
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/products/${product._id}`, {
+            const response = await fetch(apiUrl(`products/${product._id}`), {
                 method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
             });
             const data = await response.json();
@@ -483,7 +484,7 @@ function Products({ onBack, onProductClick }) {
 
                                     {/* IMAGE */}
 
-                                    <img className="product-card-image" src={product.image || productImageFallback(product)} alt={product.title} loading={index < 4 ? "eager" : "lazy"} fetchPriority={index < 2 ? "high" : "auto"} decoding="async" onError={(event) => handleProductImageError(event, product)} />
+                                    <img className="product-card-image" src={resolveProductImage(product.image, product)} alt={product.title} loading={index < 4 ? "eager" : "lazy"} fetchPriority={index < 2 ? "high" : "auto"} decoding="async" onError={(event) => handleProductImageError(event, product)} />
 
 
                                     {/* CONTENT */}

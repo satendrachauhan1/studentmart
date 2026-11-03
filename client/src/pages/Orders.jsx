@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "../utils/api.js";
 
 function Orders({ onBack, onViewOrder }) {
 
@@ -34,7 +35,7 @@ function Orders({ onBack, onViewOrder }) {
             setError("");
 
             const response = await fetch(
-                "http://localhost:5000/api/orders",
+                apiUrl("orders"),
                 {
                     method: "GET",
 
@@ -127,7 +128,7 @@ function Orders({ onBack, onViewOrder }) {
 
 
             const response = await fetch(
-                `http://localhost:5000/api/orders/${order._id}/status`,
+                apiUrl(`orders/${order._id}/status`),
                 {
                     method: "PUT",
 

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { apiUrl } from "../utils/api.js";
 
 function ProductOffers({ onBack }) {
     const [offers, setOffers] = useState([]);
@@ -6,12 +7,11 @@ function ProductOffers({ onBack }) {
     const [loading, setLoading] = useState(true);
     const [busyId, setBusyId] = useState("");
     const token = localStorage.getItem("token");
-    const api = import.meta.env.VITE_API_URL || "";
 
     const loadOffers = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${api}/api/product-offers/incoming`, { headers: { Authorization: `Bearer ${token}` } });
+            const response = await fetch(apiUrl("product-offers/incoming"), { headers: { Authorization: `Bearer ${token}` } });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Unable to load offers");
             setOffers(data.offers || []);
@@ -33,7 +33,7 @@ function ProductOffers({ onBack }) {
         setBusyId(offer._id);
         setError("");
         try {
-            const response = await fetch(`${api}/api/product-offers/${offer._id}/respond`, {
+            const response = await fetch(apiUrl(`product-offers/${offer._id}/respond`), {
                 method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ status, counterPrice })
             });

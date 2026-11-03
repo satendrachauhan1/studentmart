@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "../utils/api.js";
 
-const API = `${import.meta.env.VITE_API_URL || ""}/api/auth`;
+const API = apiUrl("auth");
 
 async function readResponse(response) {
     if (!(response.headers.get("content-type") || "").includes("application/json")) {

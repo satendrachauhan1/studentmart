@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "../utils/api.js";
 
-const API = `${import.meta.env.VITE_API_URL || ""}/api/book-requests`;
+const API = apiUrl("book-requests");
 
 function BookRequests({ onBack }) {
     const [requests, setRequests] = useState([]);

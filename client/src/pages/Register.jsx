@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "../utils/api.js";
 
 function Register({ onRegisterSuccess, onLoginClick }) {
     const [formData, setFormData] = useState({
@@ -47,7 +48,7 @@ function Register({ onRegisterSuccess, onLoginClick }) {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/auth/register",
+                apiUrl("auth/register"),
                 {
                     method: "POST",
                     headers: {

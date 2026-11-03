@@ -13,10 +13,18 @@ const categoryImages = {
 };
 
 export function productImageFallback(product) {
+    const base = import.meta.env.BASE_URL || "/";
     if (product?.seedKey && product?._id && /^(Books|Story & Novels|Books & Non-Fiction|Textbooks|Notes)$/.test(product.category || "")) {
-        return `/product-covers/${product._id}.svg`;
+        return `${base}product-covers/${product._id}.svg`;
     }
-    return `/product-images/${categoryImages[product?.category] || categoryImages.Other}`;
+    return `${base}product-images/${categoryImages[product?.category] || categoryImages.Other}`;
+}
+
+export function resolveProductImage(image, product) {
+    if (!image) return productImageFallback(product);
+    if (/^(https?:|data:|blob:)/i.test(image)) return image;
+    const base = import.meta.env.BASE_URL || "/";
+    return `${base}${String(image).replace(/^\/+/, "")}`;
 }
 
 export function handleProductImageError(event, product) {

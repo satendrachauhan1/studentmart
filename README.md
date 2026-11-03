@@ -1,0 +1,19 @@
+# StudentMart
+
+StudentMart is a campus marketplace built with React, Node.js, Express, and MongoDB.
+
+## Run locally
+
+1. Create `server/.env` with `MONGO_URI`, `JWT_SECRET`, and optionally `PORT=5000`.
+2. In `server`, run `npm install` and `npm start`.
+3. In `client`, run `npm install` and `npm run dev`.
+
+The Vite development server proxies `/api` requests to `http://localhost:5000`.
+
+## Publish the client on GitHub Pages
+
+The `Deploy StudentMart to GitHub Pages` workflow builds and publishes the React client whenever a commit is pushed to `main`.
+
+On GitHub, open **Settings → Pages → Build and deployment**, then set **Source** to **GitHub Actions**. The client will be available at `https://satendrachauhan1.github.io/studentmart/` after the workflow succeeds.
+
+GitHub Pages hosts only the static React client. To use registration, login, products, and MongoDB features online, deploy the `server` separately and add a repository variable named `VITE_API_URL` with the public backend origin (without `/api`). Set `MONGO_URI` and `JWT_SECRET` as environment variables on that backend host. Never commit `.env` files or database credentials.

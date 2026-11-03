@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "../utils/api.js";
 
 function Checkout({ onBack, onOrderPlaced, selectedCartKeys = [] }) {
   const [cart, setCart] = useState(null);
@@ -24,7 +25,7 @@ function Checkout({ onBack, onOrderPlaced, selectedCartKeys = [] }) {
 
   const fetchCart = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/cart", {
+      const response = await fetch(apiUrl("cart"), {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -79,7 +80,7 @@ function Checkout({ onBack, onOrderPlaced, selectedCartKeys = [] }) {
     setPlacingOrder(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/orders", {
+      const response = await fetch(apiUrl("orders"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

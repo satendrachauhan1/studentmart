@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { handleProductImageError, productImageFallback } from "../utils/productImage.js";
+import { handleProductImageError, resolveProductImage } from "../utils/productImage.js";
+import { apiUrl } from "../utils/api.js";
 
 function ProductDetails({ product, onBack, onCart, onOffers }) {
     const [addingToCart, setAddingToCart] = useState(false);
@@ -19,7 +20,7 @@ function ProductDetails({ product, onBack, onCart, onOffers }) {
 
     useEffect(() => {
         if (!product?._id || !token) return;
-        fetch(`${import.meta.env.VITE_API_URL || ""}/api/saved-products`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(apiUrl("saved-products"), { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => response.ok ? response.json() : { products: [] })
             .then((data) => setIsSaved((data.products || []).some((item) => item._id === product._id)))
             .catch(() => setIsSaved(false));
@@ -27,12 +28,12 @@ function ProductDetails({ product, onBack, onCart, onOffers }) {
 
     useEffect(() => {
         if (!product?._id) return;
-        fetch(`${import.meta.env.VITE_API_URL || ""}/api/products/${product._id}/view`, { method: "POST" }).catch(() => {});
+        fetch(apiUrl(`products/${product._id}/view`), { method: "POST" }).catch(() => {});
     }, [product?._id]);
 
     useEffect(() => {
         if (!product?._id || !token) return;
-        fetch(`${import.meta.env.VITE_API_URL || ""}/api/cart`, {
+        fetch(apiUrl("cart"), {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then((response) => response.ok ? response.json() : null)
@@ -48,7 +49,7 @@ function ProductDetails({ product, onBack, onCart, onOffers }) {
     const toggleSaved = async () => {
         setSaveError("");
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/saved-products/${product._id}`, {
+            const response = await fetch(apiUrl(`saved-products/${product._id}`), {
                 method: isSaved ? "DELETE" : "POST", headers: { Authorization: `Bearer ${token}` }
             });
             const data = await response.json();
@@ -62,7 +63,7 @@ function ProductDetails({ product, onBack, onCart, onOffers }) {
         setOfferStatus("");
         setSendingOffer(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/product-offers`, {
+            const response = await fetch(apiUrl("product-offers"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ productId: product._id, offerPrice, message: offerMessage, pickupProposal: product.pickup || "" })
@@ -124,7 +125,7 @@ function ProductDetails({ product, onBack, onCart, onOffers }) {
             setError("");
 
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL || ""}/api/cart`,
+                apiUrl("cart"),
                 {
                     method: "POST",
                     headers: {
@@ -177,7 +178,7 @@ function ProductDetails({ product, onBack, onCart, onOffers }) {
             setError("");
 
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL || ""}/api/cart`,
+                apiUrl("cart"),
                 {
                     method: "POST",
                     headers: {
@@ -256,7 +257,7 @@ function ProductDetails({ product, onBack, onCart, onOffers }) {
                     {/* PRODUCT IMAGE */}
                     <div className="product-details-image">
                         <div className="product-image-background">
-                            <img src={product.image || productImageFallback(product)} alt={product.title} className="product-large-image" onError={(event) => handleProductImageError(event, product)} />
+                            <img src={resolveProductImage(product.image, product)} alt={product.title} className="product-large-image" onError={(event) => handleProductImageError(event, product)} />
                         </div>
 
                         <div className="image-badge">

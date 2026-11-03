@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "../utils/api.js";
 
 function SellProduct({ onBack }) {
     const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ function SellProduct({ onBack }) {
             }
 
             const response = await fetch(
-                "http://localhost:5000/api/products",
+                apiUrl("products"),
                 {
                     method: "POST",
                     headers: {

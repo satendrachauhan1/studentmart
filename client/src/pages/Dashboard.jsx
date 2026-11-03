@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
-import { handleProductImageError, productImageFallback } from "../utils/productImage.js";
+import { handleProductImageError, resolveProductImage } from "../utils/productImage.js";
+import { apiUrl } from "../utils/api.js";
 import WelcomeAvatar from "../components/WelcomeAvatar.jsx";
 
 function Dashboard({
@@ -26,7 +27,7 @@ function Dashboard({
         const token = localStorage.getItem("token");
 
         fetch(
-            `${import.meta.env.VITE_API_URL || ""}/api/auth/profile`,
+            apiUrl("auth/profile"),
             {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -58,12 +59,10 @@ function Dashboard({
     useEffect(() => {
         const token = localStorage.getItem("token");
         const headers = { Authorization: `Bearer ${token}` };
-        const api = import.meta.env.VITE_API_URL || "";
-
         Promise.all([
-            fetch(`${api}/api/products`, { headers }).then((r) => r.json()),
-            fetch(`${api}/api/cart`, { headers }).then((r) => r.json()),
-            fetch(`${api}/api/orders/incoming`, { headers }).then(async (response) => {
+            fetch(apiUrl("products"), { headers }).then((r) => r.json()),
+            fetch(apiUrl("cart"), { headers }).then((r) => r.json()),
+            fetch(apiUrl("orders/incoming"), { headers }).then(async (response) => {
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.message || "Unable to load incoming orders");
                 return data;
@@ -107,7 +106,7 @@ function Dashboard({
         setConfirmingOrderId(orderId);
         setError("");
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/orders/incoming/${orderId}/confirm`, {
+            const response = await fetch(apiUrl(`orders/incoming/${orderId}/confirm`), {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
             });
@@ -295,7 +294,7 @@ function Dashboard({
                             <div className="actionable-panels">
                                 <section className="action-panel meetup-panel">
                                     <div className="action-panel-heading"><div><h3>Incoming Orders</h3><p>Orders placed on your listings.</p></div><span>📦</span></div>
-                                    {activity.incomingOrders.length ? <div className="confirmed-order-list">{activity.incomingOrders.map((order) => { const orderId = String(order.id || order._id || ""); const validOrderId = /^[a-f\d]{24}$/i.test(orderId); const item = order.sellerItems?.[0] || order.items?.[0]; const product = item?.product; return <article className="confirmed-order-item" key={orderId || `${item?.title || "order"}-${order.status}`}><div className="meetup-order-product"><img src={product?.image || productImageFallback(product)} alt="" loading="lazy" decoding="async" onError={(event) => handleProductImageError(event, product)} /><b>{product?.title || item?.title || "Your listing"}</b></div><div className="confirmed-order-meta"><span className="confirmed-order-badge pending">Pending</span><small>Buyer: {order.user?.name || "Student"}</small></div><small>Pickup: {product?.pickup || "Coordinate with buyer"}</small>{validOrderId && <button className="confirm-order-button" type="button" disabled={confirmingOrderId === orderId} onClick={() => confirmIncomingOrder(orderId)}>{confirmingOrderId === orderId ? "Confirming…" : "Confirm order"}</button>}</article>; })}</div> : <div className="meetup-empty"><b>No orders are pending</b><span>Any new orders placed on your listings will appear here for confirmation.</span></div>}
+                                    {activity.incomingOrders.length ? <div className="confirmed-order-list">{activity.incomingOrders.map((order) => { const orderId = String(order.id || order._id || ""); const validOrderId = /^[a-f\d]{24}$/i.test(orderId); const item = order.sellerItems?.[0] || order.items?.[0]; const product = item?.product; return <article className="confirmed-order-item" key={orderId || `${item?.title || "order"}-${order.status}`}><div className="meetup-order-product"><img src={resolveProductImage(product?.image, product)} alt="" loading="lazy" decoding="async" onError={(event) => handleProductImageError(event, product)} /><b>{product?.title || item?.title || "Your listing"}</b></div><div className="confirmed-order-meta"><span className="confirmed-order-badge pending">Pending</span><small>Buyer: {order.user?.name || "Student"}</small></div><small>Pickup: {product?.pickup || "Coordinate with buyer"}</small>{validOrderId && <button className="confirm-order-button" type="button" disabled={confirmingOrderId === orderId} onClick={() => confirmIncomingOrder(orderId)}>{confirmingOrderId === orderId ? "Confirming…" : "Confirm order"}</button>}</article>; })}</div> : <div className="meetup-empty"><b>No orders are pending</b><span>Any new orders placed on your listings will appear here for confirmation.</span></div>}
                                 </section>
                             </div>
 
@@ -310,7 +309,7 @@ function Dashboard({
                     <section className="trending-panel">
                         <div className="trending-heading"><div><h2>Trending Books, Novels & Stories on Campus</h2><p>Popular student listings, sorted by views.</p></div><button onClick={() => navigate("products", onBrowseClick)}>Browse all →</button></div>
                         {activity.recentProducts.length ? <div className="trending-books-grid">{activity.recentProducts.map((product, index) => <button className="trending-book-card" key={product._id} onClick={() => onProductClick ? onProductClick(product) : navigate("products", onBrowseClick)}>
-                            <div className="trending-book-image"><img src={product.image || productImageFallback(product)} alt={product.title} loading="lazy" decoding="async" fetchPriority={index === 0 ? "high" : "auto"} onError={(event) => handleProductImageError(event, product)} /></div>
+                            <div className="trending-book-image"><img src={resolveProductImage(product.image, product)} alt={product.title} loading="lazy" decoding="async" fetchPriority={index === 0 ? "high" : "auto"} onError={(event) => handleProductImageError(event, product)} /></div>
                             <strong title={product.title}>{product.title}</strong>{product.author && <small>{product.author}</small>}
                             <div className="trending-book-meta"><b>₹{Number(product.price || 0).toLocaleString("en-IN")}</b><span>{product.condition || "Available"}</span></div>
                             <div className="trending-book-tags"><span>{product.category || "Other"}</span>{product.rentPrice > 0 && <span>₹{product.rentPrice}/wk rent</span>}</div>

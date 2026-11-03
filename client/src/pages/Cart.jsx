@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "../utils/api.js";
 
 function Cart({
     onBack,
@@ -42,7 +43,7 @@ function Cart({
 
             const response =
                 await fetch(
-                    "http://localhost:5000/api/cart",
+                    apiUrl("cart"),
                     {
                         method: "GET",
 
@@ -131,7 +132,7 @@ function Cart({
 
             const response =
                 await fetch(
-                    `http://localhost:5000/api/cart/${productId}`,
+                    apiUrl(`cart/${productId}`),
                     {
                         method: "PUT",
 
@@ -224,7 +225,7 @@ function Cart({
 
             const response =
                 await fetch(
-                    `http://localhost:5000/api/cart/${productId}`,
+                    apiUrl(`cart/${productId}`),
                     {
                         method: "DELETE",
 
