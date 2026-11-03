@@ -24,7 +24,7 @@ function Login({ onRegisterClick }) {
 
         setMessage("");
         setError("");
-        if (!isApiConfigured()) {
+        if (!isApiConfigured) {
             setError("Online login is not connected yet. Deploy the StudentMart API and set the VITE_API_URL repository variable.");
             return;
         }

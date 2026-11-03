@@ -44,7 +44,7 @@ function Register({ onRegisterSuccess, onLoginClick }) {
             return;
         }
 
-        if (!isApiConfigured()) {
+        if (!isApiConfigured) {
             setError("Online registration is not connected yet. Deploy the StudentMart API and set the VITE_API_URL repository variable.");
             return;
         }
