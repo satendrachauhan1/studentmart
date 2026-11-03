@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function Login() {
+function Login({ onRegisterClick }) {
     const [formData, setFormData] = useState({
         email: "",
         password: ""
@@ -8,6 +8,8 @@ function Login() {
 
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -21,6 +23,7 @@ function Login() {
 
         setMessage("");
         setError("");
+        setLoading(true);
 
         try {
             const response = await fetch(
@@ -37,14 +40,12 @@ function Login() {
             const data = await response.json();
 
             if (!response.ok) {
-                setError(data.message);
+                setError(data.message || "Login failed.");
                 return;
             }
 
-            // Save JWT token
             localStorage.setItem("token", data.token);
 
-            // Save user information
             localStorage.setItem(
                 "user",
                 JSON.stringify(data.user)
@@ -52,72 +53,153 @@ function Login() {
 
             setMessage("Login successful!");
 
-localStorage.setItem("token", data.token);
-localStorage.setItem("user", JSON.stringify(data.user));
-
-setTimeout(() => {
-    window.location.href = "/dashboard";
-}, 1000);
+            setTimeout(() => {
+                window.location.reload();
+            }, 700);
 
         } catch (error) {
-            console.error(error);
-            setError("Unable to connect to server");
+            console.error("Login Error:", error);
+            setError("Unable to connect to server.");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div>
-            <h1>StudentMart</h1>
+        <div className="auth-page">
 
-            <h2>Student Login</h2>
-
-            <form onSubmit={handleSubmit}>
+            <div className="auth-brand">
+                <div className="brand-icon">S</div>
 
                 <div>
-                    <label>Email</label>
-                    <br />
+                    <h1>Student<span>Mart</span></h1>
+                    <p>Your campus marketplace</p>
+                </div>
+            </div>
 
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="Enter your email"
-                        required
-                    />
+            <div className="auth-card">
+
+                <div className="auth-header">
+                    <h2><center>Login</center></h2>
+
+                    <p>
+                        Sign in to continue to your StudentMart account.
+                    </p>
                 </div>
 
-                <br />
+                <form onSubmit={handleSubmit}>
 
-                <div>
-                    <label>Password</label>
-                    <br />
+                    <div className="input-group">
+                        <label htmlFor="email">Email Address</label>
 
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Enter your password"
-                        required
-                    />
+                        <div className="input-wrapper">
+                            <span className="input-icon">✉</span>
+
+                            <input
+                                id="email"
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="Enter your email"
+                                autoComplete="email"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="input-group">
+                        <div className="label-row">
+                            <label htmlFor="password">
+                                Password
+                            </label>
+
+                            <button
+                                type="button"
+                                className="forgot-button"
+                                onClick={() =>
+                                    setMessage(
+                                        "Password recovery will be added soon."
+                                    )
+                                }
+                            >
+                                Forgot password?
+                            </button>
+                        </div>
+
+                        <div className="input-wrapper">
+                            <span className="input-icon">🔒</span>
+
+                            <input
+                                id="password"
+                                type={
+                                    showPassword
+                                        ? "text"
+                                        : "password"
+                                }
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Enter your password"
+                                autoComplete="current-password"
+                                required
+                            />
+
+                            <button
+                                type="button"
+                                className="password-toggle"
+                                onClick={() =>
+                                    setShowPassword(!showPassword)
+                                }
+                            >
+                                {showPassword ? "Hide" : "Show"}
+                            </button>
+                        </div>
+                    </div>
+
+                    {error && (
+                        <div className="alert error">
+                            ⚠ {error}
+                        </div>
+                    )}
+
+                    {message && (
+                        <div className="alert success">
+                            ✓ {message}
+                        </div>
+                    )}
+
+                    <button
+                        className="auth-button"
+                        type="submit"
+                        disabled={loading}
+                    >
+                        {loading ? "Signing in..." : "Sign In"}
+                    </button>
+
+                </form>
+
+                <div className="divider">
+                    <span>OR</span>
                 </div>
 
-                <br />
+                <div className="auth-switch">
+                    <span>Don't have an account?</span>
 
-                <button type="submit">
-                    Login
-                </button>
+                    <button
+                        type="button"
+                        onClick={onRegisterClick}
+                    >
+                        Create account
+                    </button>
+                </div>
 
-            </form>
+            </div>
 
-            {message && (
-                <p>{message}</p>
-            )}
+            <p className="auth-footer">
+                © 2026 StudentMart · Built for students
+            </p>
 
-            {error && (
-                <p>{error}</p>
-            )}
         </div>
     );
 }

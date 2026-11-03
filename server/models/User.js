@@ -16,6 +16,26 @@ const userSchema = new mongoose.Schema(
             trim: true
         },
 
+        phone: {
+            type: String,
+            trim: true,
+            default: "",
+            maxlength: 20
+        },
+
+        bio: {
+            type: String,
+            trim: true,
+            default: "",
+            maxlength: 300
+        },
+
+        studentId: { type: String, trim: true, default: "", maxlength: 30 },
+        department: { type: String, trim: true, default: "", maxlength: 100 },
+        semester: { type: String, trim: true, default: "", maxlength: 40 },
+        pickupLocation: { type: String, trim: true, default: "", maxlength: 120 },
+        gender: { type: String, enum: ["", "male", "female", "prefer-not-to-say"], default: "" },
+
         password: {
             type: String,
             required: true,
